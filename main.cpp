@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <ctype.h>
 
@@ -22,70 +23,72 @@ enum State {
   inside_literal,
 };
 
-struct context {
+class context {
+public:
   State current_state = neutral;
   char previous_character;
   char current_character;
   bool inside_array = false;
   int indent_level = 0;
+  std::stringstream output{};
 };
 
-void object_start(const context &ctx) {
-  printf("%s{%s", red, reset);
+void object_start(context &ctx) {
+  ctx.output << red << "{" << reset;
 }
 
-void object_end(const context &ctx) {
-  std::cout << "\n" << std::string(ctx.indent_level*2, ' ');
-  printf("%s}%s", red, reset);
+void object_end(context &ctx) {
+  ctx.output << "\n" << std::string(ctx.indent_level*2, ' ');
+  ctx.output << red << "}" << reset;
 }
 
-void array_start(const context &ctx) {
-  printf("%s[%s", red, reset);
+void array_start(context &ctx) {
+  ctx.output << red << "[" << reset;
 }
 
-void array_end(const context &ctx) {
-  printf("%s]%s", red, reset);
+void array_end(context &ctx) {
+  ctx.output << red << "]" << reset;
 }
 
-void key_start(const context &ctx) {
-  std::cout << std::endl << std::string(ctx.indent_level*2, ' ');
-  printf("%s\"", cyan);
+void key_start(context &ctx) {
+  ctx.output << "\n" << std::string(ctx.indent_level*2, ' ');
+  ctx.output << cyan << "\"";
 }
 
-void key_end(const context &ctx) {
-  printf("\"%s", reset);
+void key_end(context &ctx) {
+  ctx.output << "\"%s" << reset;
 }
 
-void string_start(const context &ctx) {
-  printf("%s\"", yellow);
+void string_start(context &ctx) {
+  ctx.output << yellow << "\"";
 }
 
-void string_end(const context &ctx) {
-  printf("\"%s", reset);
+void string_end(context &ctx) {
+  ctx.output << "\"%s" << reset;
 }
 
-void number_start(const context &ctx) {
-  printf("%s%c", magenta, ctx.current_character);
+void number_start(context &ctx) {
+  ctx.output << magenta << ctx.current_character;
 }
 
-void number_end(const context &ctx) {
-  printf("%s", reset);
+void number_end(context &ctx) {
+  ctx.output << reset;
 }
 
-void literal_start(const context &ctx) {
-  printf("%s%c", green, ctx.current_character);
+void literal_start(context &ctx) {
+  ctx.output << green << ctx.current_character;
 }
 
-void literal_end(const context &ctx) {
-  printf("%c%s", ctx.current_character, reset);
+void literal_end(context &ctx) {
+  ctx.output << ctx.current_character << reset;
 }
 
-void colon(const context &ctx) {
-  std::cout << ": ";
+void colon(context &ctx) {
+  ctx.output << ": ";
 }
 
-void comma(const context &ctx) {
-  std::cout << ctx.current_character;
+void comma(context &ctx) {
+  ctx.output << ctx.current_character;
 }
 
 bool is_exponent_char(const char c) {
@@ -120,7 +123,7 @@ void handle_number(context &ctx) {
     number_start(ctx);
     return;
   }
-  std::cout << ctx.current_character;
+  ctx.output << ctx.current_character;
 }
 
 void handle_string(context &ctx) {
@@ -129,7 +132,7 @@ void handle_string(context &ctx) {
     ctx.current_state == inside_string ? string_end(ctx) : key_end(ctx);
     return;
   }
-  std::cout << ctx.current_character;
+  ctx.output << ctx.current_character;
 }
 
 void handle_comma(context &ctx) {
@@ -152,7 +155,7 @@ void handle_quotes(context &ctx) {
 
 void handle_dot(context &ctx) {
   ctx.current_state = inside_number;
-  std::cout << ctx.current_character;
+  ctx.output << ctx.current_character;
 }
 
 void handle_primitives(context &ctx) {
@@ -185,7 +188,7 @@ void handle_primitives(context &ctx) {
         break;
       }
     default:
-      std::cout << ctx.current_character;
+      ctx.output << ctx.current_character;
   }
 }
 
@@ -216,8 +219,6 @@ void handle_char_ctx(context &ctx) {
   }
 }
 
-
-
 void read_char_file(const std::string &file_path) {
   std::ifstream in(file_path);
   if(!in.is_open()) {
@@ -231,12 +232,13 @@ void read_char_file(const std::string &file_path) {
     handle_char_ctx(ctx);
   }
   if(!in.eof() && in.fail()) {
-    std::cout << "error reading " << file_path << std::endl;
+    ctx.output << "error reading " << file_path << std::endl;
   }
-  printf("%s\n", reset);
+  ctx.output << reset << "\n";
+  // std::cout << ctx.output.str();
 }
 
 int main() {
-  std::string file_path("./example.json");
+  std::string file_path("./test-data/movies.json");
   read_char_file(file_path);
 }

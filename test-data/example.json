@@ -1,0 +1,44 @@
+{
+  "glossary": {
+    "title": "example {glossary}",
+    "GlossDiv": {
+      "title": "S",
+      "GlossList": {
+        "GlossEntry": {
+          "ID": "SGML",
+          "SortAs": "SGML",
+          "GlossTerm": "Standard Generalized Markup Language",
+          "Acronym": "SGML",
+          "Abbrev": "ISO 8879:1986",
+          "GlossDef": {
+            "para": "A [meta-markup] language, used to create markup languages such as DocBook.",
+            "GlossSeeAlso": [
+              "GML",
+              "XML"
+            ]
+          },
+          "GlossSee": "markup",
+          "Chinese": "漢字",
+          "OneNum": 1,
+          "OneFloat": 1.3434234,
+          "OneNegative": -100,
+          "ExpIntUpper": 1E2,
+          "ExpIntLower": 43e21,
+          "ExpFloatUpper": 1332.1214241E4,
+          "NegExpIntUpper": 1E-2,
+          "NegExpIntLower": 43e-21,
+          "NegExpNegIntUpper": -1E-2,
+          "NegExpNegIntLower": -43e-21,
+          "NegExpFloatUpper": 1332.1214241E-4,
+          "NegExpNegFloatLower": -1332.1214241e-4
+        },
+        "SomeBoolean": true,
+        "SecondOne": true
+      },
+      "OtherBoolean": false,
+      "OtherSecondOne": false
+    },
+    "TheNull": null,
+    "AfterNull": null
+  }
+}
