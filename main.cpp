@@ -29,6 +29,7 @@ public:
   char previous_character;
   char current_character;
   bool inside_array = false;
+  bool inside_escape = false;
   int indent_level = 0;
   std::stringstream output{};
 };
@@ -56,7 +57,7 @@ void key_start(context &ctx) {
 }
 
 void key_end(context &ctx) {
-  ctx.output << "\"%s" << reset;
+  ctx.output << "\"" << reset;
 }
 
 void string_start(context &ctx) {
@@ -64,7 +65,7 @@ void string_start(context &ctx) {
 }
 
 void string_end(context &ctx) {
-  ctx.output << "\"%s" << reset;
+  ctx.output << "\"" << reset;
 }
 
 void number_start(context &ctx) {
@@ -127,10 +128,18 @@ void handle_number(context &ctx) {
 }
 
 void handle_string(context &ctx) {
+  if (ctx.inside_escape) {
+    ctx.output << ctx.current_character;
+    ctx.inside_escape = false;
+    return;
+  }
   if (ctx.current_character == '"') {
     ctx.current_state = ctx.current_state == inside_string? neutral : after_key;
     ctx.current_state == inside_string ? string_end(ctx) : key_end(ctx);
     return;
+  }
+  if (ctx.current_character == '\\') {
+    ctx.inside_escape = true; 
   }
   ctx.output << ctx.current_character;
 }
@@ -235,10 +244,10 @@ void read_char_file(const std::string &file_path) {
     ctx.output << "error reading " << file_path << std::endl;
   }
   ctx.output << reset << "\n";
-  // std::cout << ctx.output.str();
+  std::cout << ctx.output.str();
 }
 
 int main() {
-  std::string file_path("./test-data/movies.json");
+  std::string file_path("./test-data/example.json");
   read_char_file(file_path);
 }
